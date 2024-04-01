@@ -1,0 +1,89 @@
+#calculator-window {
+    background-color: #17181A;
+}
+
+#display-panel {
+    background-color: #17181A;
+    border: none;
+}
+
+#expression-box {
+    margin-top: -10px;
+}
+
+#result-box {
+    margin-top: -45px;
+}
+
+
+#expression-label {
+    color: #818181;
+    font-size: 24px;
+    font-family: "Arial";
+    margin-right: 5px;
+}
+
+#result-label {
+    color: white;
+    font-size: 48px;
+    font-family: "Arial";
+    margin-right: 5px;
+}
+
+
+#button {
+    color: #29A8FF;
+    background: #303136;
+    font-size: 32px;
+    outline: 0;
+}
+
+#operator-button {
+    color: #29A8FF;
+    background: #303136;
+    font-size: 32px;
+    margin: 3px;
+}
+
+#operators-panel {
+    /*background: purple;*/
+}
+
+#button-panel {
+    /*background: green;*/
+}
+
+#menu-bar {
+    background-color: #333;
+    color: white;
+}
+
+#menu-bar::item:selected {
+    background-color: #333;
+    color: #29A8FF;
+    border-bottom: 2px solid #29A8FF;
+}
+
+#menu-application:hover, #menu-about:hover {
+    color: red;
+}
+
+#history-window {
+    background-color: #17181A;
+}
+
+#history-text {
+    color: white;
+    font-size: 24px;
+}
+
+#clear-history-button {
+    background: #303136;
+    color: #29A8FF;
+    border: none;
+    padding: 5px 10px;
+    margin: 2px;
+    font-size: 24px;
+    border: 0px;
+}
+
