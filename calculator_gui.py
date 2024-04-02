@@ -1,11 +1,29 @@
 import sys
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal, QObject
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QApplication, QMainWindow, QGridLayout, QScrollArea, QWidget, QVBoxLayout, QLabel, \
-    QPushButton, QSizePolicy, QHBoxLayout, QMessageBox
+    QPushButton, QSizePolicy, QHBoxLayout, QMessageBox, QTextEdit
 
 from calculator import calculate_expression
+
+
+class HistoryBox(QObject):
+    history_updated = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.history_of_calculations = []
+
+    def add_to_history(self, calculation):
+        self.history_of_calculations.append(calculation)
+        self.history_updated.emit()
+
+    def get_history(self):
+        return self.history_of_calculations
+
+
+history_box = HistoryBox()
 
 
 class BaseWindow(QMainWindow):
@@ -48,18 +66,22 @@ class BaseWindow(QMainWindow):
         menu_bar.addAction(about_action)
 
     def on_calculator_clicked(self):
-        calculator_window = CalculatorWindow(None)
+        calculator_window = CalculatorWindow(history_box)
         calculator_window.show()
         self.windows.append(calculator_window)
 
     def on_history_clicked(self):
-        print("on_history_clicked")
+        history_window = HistoryWindow(history_box)
+        history_window.show()
+        self.windows.append(history_window)
 
     def on_quit_activate(self):
-        print("on_quit_activate")
+        QApplication.quit()
 
     def on_about_program_clicked(self):
-        print("on_about_program_clicked")
+        about_window = AboutWindow()
+        about_window.show()
+        self.windows.append(about_window)
 
 
 class CalculatorWindow(BaseWindow):
@@ -197,7 +219,7 @@ class CalculatorWindow(BaseWindow):
             try:
                 result = calculate_expression(self.expression)
                 self.result_label.setText("=" + str(result))
-                # self.history_box.add_to_history(f"{self.expression}={result}")
+                self.history_box.add_to_history(f"{self.expression}={result}")
                 self.expression = ""
             except Exception as e:
                 self.show_error_dialog(str(e))
@@ -225,6 +247,74 @@ class CalculatorWindow(BaseWindow):
         dialog.exec()
 
 
+class HistoryWindow(BaseWindow):
+    def __init__(self, history_box):
+        super().__init__(385, 450)
+        self.history_box = history_box
+        self.setWindowTitle("Historia Obliczeń")
+        self.setObjectName("history-window")
+
+        self.central_widget = QWidget()
+        self.central_widget.setObjectName("history-window")
+        self.setCentralWidget(self.central_widget)
+
+        layout = QVBoxLayout()
+        layout.setObjectName("history-window")
+        self.central_widget.setLayout(layout)
+
+        self.text_edit = QTextEdit()
+        self.text_edit.setReadOnly(True)
+        self.text_edit.setObjectName("history-text")
+        layout.addWidget(self.text_edit)
+
+        self.clear_button = QPushButton("Wyczyść historię")
+        self.clear_button.setObjectName("clear-history-button")
+        self.clear_button.clicked.connect(self.on_clear_button_clicked)
+        layout.addWidget(self.clear_button)
+
+        self.history_box.history_updated.connect(self.update_history)
+
+    def update_history(self):
+        history_text = "\n".join(self.history_box.get_history())
+        self.text_edit.setPlainText(history_text)
+
+    def on_clear_button_clicked(self):
+        self.history_box.history_of_calculations = []
+        self.history_box.history_updated.emit()
+
+
+class AboutWindow(BaseWindow):
+    def __init__(self):
+        super().__init__(400, 330)
+        self.setWindowTitle("O programie")
+        self.setObjectName("about-window")
+
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        layout = QVBoxLayout(central_widget)
+
+        label_text = (
+            "<span style='font-size: large;'><b>Autor:</b></span> Krystian Jandy s184589<br><br>"
+            "<span style='font-size: large;'><b>Wersja aplikacji:</b></span> 1.0<br><br>"
+            "<span style='font-size: large;'><b>Opis:</b></span><br>"
+            "Aplikacja kalkulatora jest narzędziem umożliwiającym wygodne wykonywanie podstawowych operacji "
+            "matematycznych, takich jak dodawanie, odejmowanie, mnożenie i dzielenie, za pomocą prostego i "
+            "intuicyjnego interfejsu graficznego użytkownika. Oprócz podstawowych funkcji matematycznych, "
+            "aplikacja umożliwia również przeglądanie historii wykonanych działań, pozwalając użytkownikowi "
+            "śledzić i analizować poprzednie obliczenia."
+        )
+
+        label = QLabel(label_text)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+
+        close_button = QPushButton("Zamknij")
+        close_button.setObjectName("close-button")
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     try:
@@ -233,6 +323,6 @@ if __name__ == "__main__":
     except FileNotFoundError:
         print("Nie można odnaleźć pliku styles.css")
 
-    window = CalculatorWindow(None)
+    window = CalculatorWindow(history_box)
     window.show()
     sys.exit(app.exec())

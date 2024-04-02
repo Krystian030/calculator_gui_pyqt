@@ -20,7 +20,7 @@
     color: #818181;
     font-size: 24px;
     font-family: "Arial";
-    margin-right: 5px;
+    margin-right: 10px;
 }
 
 #result-label {
@@ -70,9 +70,12 @@
 
 #history-window {
     background-color: #17181A;
+    border: none;
 }
 
 #history-text {
+    background-color: #17181A;
+    border: none;
     color: white;
     font-size: 24px;
 }
@@ -80,10 +83,13 @@
 #clear-history-button {
     background: #303136;
     color: #29A8FF;
-    border: none;
     padding: 5px 10px;
     margin: 2px;
     font-size: 24px;
-    border: 0px;
 }
 
+#close-button {
+    width: 400px;
+    height:30px;
+    margin: 0;
+}
